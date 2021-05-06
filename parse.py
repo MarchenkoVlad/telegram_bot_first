@@ -2,7 +2,6 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
-import os
 
 URL = 'https://yandex.ru/'
 
@@ -10,6 +9,8 @@ HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
           'accept': '*/*'}
 
 HOST = 'https://yandex.ru/'
+
+FILE = 'title_news.csv'
 
 def get_html(url, params=None):
     r = requests.get(url, headers=HEADERS, params=params)
@@ -22,12 +23,18 @@ def get_content(html):
     title = []
 
     for item in items:
-        
         title.append({
-            'title': item.find('span', class_= 'news__item-content ').get_text()
+            'title': item.find('span', class_= 'news__item-content').get_text().replace('\xa0', ''),
+            'link': item.find('a', class_='home-link list__item-content list__item-content_with-icon home-link_black_yes').get('href')
         })
-        
     return title
+
+def save_file(items, path):
+    with open(path, 'w', newline='') as file:
+        writer = csv.writer(file, delimiter=';')
+        writer.writerow(['заголовок новости', 'ссылка на новость'])
+        for item in items:
+            writer.writerow([item['title'], item['link']])
 
 def parse():
     html = get_html(URL)
@@ -35,6 +42,7 @@ def parse():
         title = []
         title.extend(get_content(html.text))
         print(title)
+        save_file(title, FILE)
     else:
         print('Error')
 

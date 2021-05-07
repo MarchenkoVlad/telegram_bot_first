@@ -10,7 +10,6 @@ HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 HOST = 'https://yandex.ru/'
 
-FILE = 'title_news.csv'
 
 def get_html(url, params=None):
     r = requests.get(url, headers=HEADERS, params=params)
@@ -29,21 +28,13 @@ def get_content(html):
         })
     return title
 
-def save_file(items, path):
-    with open(path, 'w', newline='') as file:
-        writer = csv.writer(file, delimiter=';')
-        writer.writerow(['заголовок новости', 'ссылка на новость'])
-        for item in items:
-            writer.writerow([item['title'], item['link']])
 
 def parse():
+    
     html = get_html(URL)
     if html.status_code == 200:
         title = []
         title.extend(get_content(html.text))
-        print(title)
-        save_file(title, FILE)
+        return title
     else:
         print('Error')
-
-parse()
